@@ -1,4 +1,4 @@
-import type { User } from "../types/index";
+import type { User } from "../types/index.js";
 
 function getUser(id: number): User {
     return {
