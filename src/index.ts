@@ -1,48 +1,48 @@
-import type { User } from "../types/index.js";
+import type {
+    User,
+    Course,
+    Submission,
+    ApiResponse
+} from "./types";
+import { getFirst } from "./types";
 
-function getUser(id: number): User {
-    return {
-        id: id,
-        name: "Angelo Marasigan",
-        email: "angelomarasigan@gmail.com",
-        role: "student",
-        isActive: true,
-        score: 95.5,
-    };
-}
+// Sample User
+const user: User = {
+    id: 1,
+    name: "Juan Dela Cruz",
+    email: "juan@example.com",
+    role: "Student",
+    isActive: true,
+    score: 95
+};
 
-function calculateGrade(
-    score: number,
-    maxScore: number
-): string {
+// Sample Course
+const course: Course = {
+    id: 101,
+    title: "TypeScript Programming",
+    units: 3,
+    semester: "1st Semester"
+};
 
-    const percentage: number =
-        (score / maxScore) * 100;
+// Sample Submission
+const submission: Submission = {
+    id: 1,
+    studentId: 1,
+    courseId: 101
+};
 
-    if (percentage >= 90) return "A";
-    if (percentage >= 80) return "B";
-    if (percentage >= 70) return "C";
+// Generic Function Example
+const users: User[] = [user];
+const firstUser = getFirst(users);
 
-    return "F";
-}
+// Generic Interface Example
+const response: ApiResponse<User> = {
+    success: true,
+    message: "User retrieved successfully.",
+    data: user
+};
 
-function formatCourse(
-    name: string,
-    units: number,
-    semester: string
-): string {
-
-    return `${name} (${units} units) - ${semester}`;
-}
-
-const user: User = getUser(1);
-
-console.log(user);
-console.log(calculateGrade(85, 100));
-console.log(
-    formatCourse(
-        "IT Elective 4",
-        3,
-        "1st Semester"
-    )
-);
+console.log(firstUser);
+console.log(response);
+console.log(course);
+console.log(submission);
