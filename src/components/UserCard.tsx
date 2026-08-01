@@ -1,28 +1,26 @@
-interface User {
+type User = {
   id: number;
   name: string;
   email: string;
-}
+};
 
-interface UserCardProps {
+type Props = {
   user: User;
-}
+  variant?: 'default' | 'compact';
+};
 
-function UserCard({ user }: UserCardProps) {
-  const handleClick = (): void => {
-    alert("Clicked!");
-  };
-
+export default function UserCard({
+  user,
+  variant = 'default',
+}: Props) {
   return (
-    <div>
-      <h2>{user.name}</h2>
-      <p>{user.email}</p>
-
-      <button onClick={handleClick}>
-        Click Me
-      </button>
+    <div
+      className={`rounded-xl border bg-white p-4 shadow dark:bg-gray-800 ${
+        variant === 'compact' ? 'p-2 text-sm' : 'p-4'
+      }`}
+    >
+      <h2 className="text-lg font-bold">{user.name}</h2>
+      <p className="text-gray-600 dark:text-gray-300">{user.email}</p>
     </div>
   );
 }
-
-export default UserCard;

@@ -122,3 +122,9 @@ svg {
     filter: none;
   }
 }
+@import "tailwindcss";
+
+body {
+  background: var(--bg);
+  color: var(--text);
+}
