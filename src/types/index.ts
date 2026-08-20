@@ -52,3 +52,11 @@ export type UserReturn = User | undefined;
 
 // User Role Type
 export type UserRole = "Admin" | "Student" | "Teacher";
+
+export interface AppointmentApi {
+    id: number;
+    patientName: string;
+    appointmentDate: string;
+}
+
+export type CreateAppointment = Omit<AppointmentApi, "id">;
