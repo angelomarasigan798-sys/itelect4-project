@@ -1,19 +1,28 @@
 {
   "appointments": [
     {
-      "id": 1,
+      "id": "1",
       "patientName": "Maria Santos",
       "appointmentDate": "2026-08-21"
     },
     {
-      "id": 2,
+      "id": "2",
       "patientName": "Rico Lim",
       "appointmentDate": "2026-08-22"
     },
     {
-      "id": 3,
+      "id": "3",
       "patientName": "Ana Reyes",
       "appointmentDate": "2026-08-23"
+    },
+    {
+      "patientName": "IYA LIWANAG",
+      "appointmentDate": "2026-08-21",
+      "appointmentTime": "09:00",
+      "appointmentType": "Medical check-up",
+      "notes": "HII",
+      "id": "7kZr0aGCh9A"
     }
-  ]
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
 }

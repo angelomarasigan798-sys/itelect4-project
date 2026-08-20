@@ -1,9 +1,12 @@
 const API_URL = "http://localhost:3001";
 
 export interface AppointmentApi {
-  id: number;
+  id: string;
   patientName: string;
   appointmentDate: string;
+  appointmentTime?: string;
+  appointmentType?: string;
+  notes?: string;
 }
 
 export type CreateAppointment = Omit<AppointmentApi, "id">;
@@ -18,7 +21,7 @@ export async function getAppointments(): Promise<AppointmentApi[]> {
   return response.json() as Promise<AppointmentApi[]>;
 }
 
-export async function getAppointmentById(id: number): Promise<AppointmentApi> {
+export async function getAppointmentById(id: string): Promise<AppointmentApi> {
   const response = await fetch(`${API_URL}/appointments/${id}`);
 
   if (!response.ok) {
@@ -42,4 +45,14 @@ export async function createAppointment(input: CreateAppointment): Promise<Appoi
   }
 
   return response.json() as Promise<AppointmentApi>;
+}
+
+export async function deleteAppointment(id: string): Promise<void> {
+  const response = await fetch(`${API_URL}/appointments/${id}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to delete appointment ${id}`);
+  }
 }
