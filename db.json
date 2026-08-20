@@ -1,0 +1,19 @@
+{
+  "appointments": [
+    {
+      "id": 1,
+      "patientName": "Maria Santos",
+      "appointmentDate": "2026-08-21"
+    },
+    {
+      "id": 2,
+      "patientName": "Rico Lim",
+      "appointmentDate": "2026-08-22"
+    },
+    {
+      "id": 3,
+      "patientName": "Ana Reyes",
+      "appointmentDate": "2026-08-23"
+    }
+  ]
+}
