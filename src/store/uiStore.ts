@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 interface UIStore {
   search: string;
@@ -7,9 +8,16 @@ interface UIStore {
   toggleDarkMode: () => void;
 }
 
-export const useUIStore = create<UIStore>((set) => ({
-  search: '',
-  setSearch: (search) => set({ search }),
-  darkMode: false,
-  toggleDarkMode: () => set((state) => ({ darkMode: !state.darkMode })),
-}));
+export const useUIStore = create<UIStore>()(
+  persist(
+    (set) => ({
+      search: '',
+      setSearch: (search) => set({ search }),
+      darkMode: false,
+      toggleDarkMode: () => set((state) => ({ darkMode: !state.darkMode })),
+    }),
+    {
+      name: 'careline-ui-store',
+    },
+  ),
+);

@@ -3,17 +3,14 @@
     {
       "id": "1",
       "patientName": "Maria Santos",
-      "appointmentDate": "2026-08-21"
+      "appointmentDate": "2026-08-21",
+      "status": "done"
     },
     {
       "id": "2",
       "patientName": "Rico Lim",
-      "appointmentDate": "2026-08-22"
-    },
-    {
-      "id": "3",
-      "patientName": "Ana Reyes",
-      "appointmentDate": "2026-08-23"
+      "appointmentDate": "2026-08-22",
+      "status": "done"
     },
     {
       "patientName": "IYA LIWANAG",
@@ -21,7 +18,34 @@
       "appointmentTime": "09:00",
       "appointmentType": "Medical check-up",
       "notes": "HII",
-      "id": "7kZr0aGCh9A"
+      "id": "7kZr0aGCh9A",
+      "status": "done"
+    },
+    {
+      "patientName": "Andrei Carandang",
+      "appointmentDate": "2026-03-02",
+      "appointmentTime": "21:00",
+      "appointmentType": "Follow-up visit",
+      "notes": "gamoten mo posu q",
+      "id": "xh7JFYEqFIM"
+    },
+    {
+      "patientName": "iya my baby girl",
+      "appointmentDate": "2026-08-21",
+      "appointmentTime": "09:00",
+      "appointmentType": "General consultation",
+      "notes": "",
+      "status": "done",
+      "id": "VeA3o3G3JUY"
+    },
+    {
+      "patientName": "baby girl q",
+      "appointmentDate": "2026-08-21",
+      "appointmentTime": "09:00",
+      "appointmentType": "Follow-up visit",
+      "notes": "miss u",
+      "status": "upcoming",
+      "id": "OrCeEmAU_60"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

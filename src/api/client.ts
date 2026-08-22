@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3001";
+const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3002";
 
 export interface AppointmentApi {
   id: string;
@@ -7,6 +7,7 @@ export interface AppointmentApi {
   appointmentTime?: string;
   appointmentType?: string;
   notes?: string;
+  status?: 'upcoming' | 'done';
 }
 
 export type CreateAppointment = Omit<AppointmentApi, "id">;
@@ -37,11 +38,30 @@ export async function createAppointment(input: CreateAppointment): Promise<Appoi
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(input),
+    body: JSON.stringify({
+      ...input,
+      status: input.status ?? 'upcoming',
+    }),
   });
 
   if (!response.ok) {
     throw new Error('Failed to create appointment');
+  }
+
+  return response.json() as Promise<AppointmentApi>;
+}
+
+export async function updateAppointment(id: string, input: Partial<AppointmentApi>): Promise<AppointmentApi> {
+  const response = await fetch(`${API_URL}/appointments/${id}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(input),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to update appointment ${id}`);
   }
 
   return response.json() as Promise<AppointmentApi>;
