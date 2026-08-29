@@ -3,8 +3,13 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { Link, Navigate, Route, Routes, useNavigate, useParams } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import type { AppointmentApi } from './api/client';
 import {
   createAppointment,
@@ -13,6 +18,7 @@ import {
   getAppointments,
   updateAppointment,
 } from './api/client';
+import { appointmentSchema, type AppointmentFormValues } from './schemas/appointmentSchema';
 import { useUIStore } from './store/uiStore';
 import './App.css';
 
@@ -44,36 +50,65 @@ function LoginPage({ onLogin }: { onLogin: (username: string, password: string) 
         <h1>Login</h1>
         <p className="login-subtitle">Sign in to access appointments.</p>
 
+        <Link className="console-link" to="/lecture-console">
+          Open Session 8 lecture console
+        </Link>
+
         <form className="login-form" onSubmit={handleSubmit}>
-          <label>
-            Username
-            <input
+          <div>
+            <Label htmlFor="username">Username</Label>
+            <Input
+              id="username"
               type="text"
               value={username}
               onChange={(event) => setUsername(event.target.value)}
               placeholder="Enter your username"
               autoComplete="username"
             />
-          </label>
+          </div>
 
-          <label>
-            Password
-            <input
+          <div>
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
               type="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder="Enter your password"
               autoComplete="current-password"
             />
-          </label>
+          </div>
 
           {error && <p className="login-error">{error}</p>}
 
-          <button className="primary-button login-button" type="submit">
+          <Button className="primary-button login-button" type="submit">
             Sign in
-          </button>
+          </Button>
         </form>
       </div>
+    </div>
+  );
+}
+
+function LectureConsolePage() {
+  return (
+    <div className="lecture-console-shell">
+      <header className="topbar">
+        <Link className="brand" to="/appointments">
+          <span className="brand-mark">+</span>
+          <span>Careline</span>
+        </Link>
+        <div className="topbar-actions">
+          <Link className="console-link topbar-console-link" to="/appointments">
+            Back to appointments
+          </Link>
+        </div>
+      </header>
+      <iframe
+        title="ITELECT4 Session 8 Console"
+        src="/lecture-console.html"
+        className="lecture-console-iframe"
+      />
     </div>
   );
 }
@@ -82,15 +117,24 @@ function AppointmentsPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [appointmentToDelete, setAppointmentToDelete] = useState<AppointmentApi | null>(null);
   const [appointmentToEdit, setAppointmentToEdit] = useState<AppointmentApi | null>(null);
-  const [form, setForm] = useState({
-    patientName: '',
-    appointmentDate: '2026-08-21',
-    appointmentTime: '09:00',
-    appointmentType: 'General consultation',
-    notes: '',
-  });
   const queryClient = useQueryClient();
   const search = useUIStore((state) => state.search);
+  const createForm = useForm<AppointmentFormValues>({
+    resolver: zodResolver(appointmentSchema),
+    defaultValues: {
+      patientName: '',
+      appointmentDate: '2026-08-21',
+      appointmentTime: '09:00',
+      appointmentType: 'General consultation',
+      notes: '',
+    },
+  });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = createForm;
   const setSearch = useUIStore((state) => state.setSearch);
   const darkMode = useUIStore((state) => state.darkMode);
   const toggleDarkMode = useUIStore((state) => state.toggleDarkMode);
@@ -142,14 +186,20 @@ function AppointmentsPage() {
     appointment.patientName.toLowerCase().includes(search.toLowerCase()),
   );
 
-  const handleCreate = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    mutation.mutate(form, {
-      onSuccess: () => {
-        setForm({ patientName: '', appointmentDate: '2026-08-21', appointmentTime: '09:00', appointmentType: 'General consultation', notes: '' });
-        setIsFormOpen(false);
+  const handleCreate = (values: AppointmentFormValues) => {
+    mutation.mutate(
+      {
+        ...values,
+        notes: values.notes ?? '',
+        status: 'upcoming',
       },
-    });
+      {
+        onSuccess: () => {
+          reset();
+          setIsFormOpen(false);
+        },
+      },
+    );
   };
 
   if (isLoading) {
@@ -168,6 +218,9 @@ function AppointmentsPage() {
           <span>Careline</span>
         </Link>
         <div className="topbar-actions">
+          <Link className="console-link topbar-console-link" to="/lecture-console">
+            Session 8 Console
+          </Link>
           <button className="theme-button" type="button" onClick={toggleDarkMode}>
             <span className="theme-icon" aria-hidden="true">{darkMode ? '○' : '◐'}</span>
             {darkMode ? 'Light mode' : 'Dark mode'}
@@ -278,16 +331,41 @@ function AppointmentsPage() {
               <button className="close-button" type="button" onClick={() => setIsFormOpen(false)} aria-label="Close form">x</button>
             </div>
             <p className="modal-copy">Enter the patient details and choose a convenient visit schedule.</p>
-            <form className="appointment-form" onSubmit={handleCreate}>
-              <label>Patient name<input required value={form.patientName} onChange={(event) => setForm({ ...form, patientName: event.target.value })} placeholder="e.g. Maria Santos" /></label>
-              <div className="form-grid">
-                <label>Date<input required type="date" value={form.appointmentDate} onChange={(event) => setForm({ ...form, appointmentDate: event.target.value })} /></label>
-                <label>Time<input required type="time" value={form.appointmentTime} onChange={(event) => setForm({ ...form, appointmentTime: event.target.value })} /></label>
+            <form className="appointment-form" onSubmit={handleSubmit(handleCreate)}>
+              <div>
+                <Label htmlFor="patientName">Patient name</Label>
+                <Input id="patientName" {...register('patientName')} aria-invalid={Boolean(errors.patientName)} placeholder="e.g. Maria Santos" />
+                {errors.patientName && <p className="login-error">{errors.patientName.message}</p>}
               </div>
-              <label>Appointment type<select value={form.appointmentType} onChange={(event) => setForm({ ...form, appointmentType: event.target.value })}><option>General consultation</option><option>Follow-up visit</option><option>Medical check-up</option><option>Laboratory request</option></select></label>
-              <label>Notes <span className="optional">(optional)</span><textarea rows={3} value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} placeholder="Add a short note for the clinic" /></label>
+              <div className="form-grid">
+                <div>
+                  <Label htmlFor="appointmentDate">Date</Label>
+                  <Input id="appointmentDate" type="date" {...register('appointmentDate')} aria-invalid={Boolean(errors.appointmentDate)} />
+                  {errors.appointmentDate && <p className="login-error">{errors.appointmentDate.message}</p>}
+                </div>
+                <div>
+                  <Label htmlFor="appointmentTime">Time</Label>
+                  <Input id="appointmentTime" type="time" {...register('appointmentTime')} aria-invalid={Boolean(errors.appointmentTime)} />
+                  {errors.appointmentTime && <p className="login-error">{errors.appointmentTime.message}</p>}
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="appointmentType">Appointment type</Label>
+                <select id="appointmentType" {...register('appointmentType')} aria-invalid={Boolean(errors.appointmentType)}>
+                  <option value="General consultation">General consultation</option>
+                  <option value="Follow-up visit">Follow-up visit</option>
+                  <option value="Medical check-up">Medical check-up</option>
+                  <option value="Laboratory request">Laboratory request</option>
+                </select>
+                {errors.appointmentType && <p className="login-error">{errors.appointmentType.message}</p>}
+              </div>
+              <div>
+                <Label htmlFor="notes">Notes <span className="optional">(optional)</span></Label>
+                <textarea id="notes" rows={3} {...register('notes')} placeholder="Add a short note for the clinic" />
+                {errors.notes && <p className="login-error">{errors.notes.message}</p>}
+              </div>
               {mutation.isError && <p className="form-error">We could not save this appointment. Please try again.</p>}
-              <div className="form-actions"><button className="secondary-button" type="button" onClick={() => setIsFormOpen(false)}>Cancel</button><button className="primary-button" type="submit" disabled={mutation.isPending}>{mutation.isPending ? 'Saving...' : 'Save appointment'}</button></div>
+              <div className="form-actions"><button className="secondary-button" type="button" onClick={() => setIsFormOpen(false)}>Cancel</button><Button className="primary-button" type="submit" disabled={mutation.isPending}>{mutation.isPending ? 'Saving...' : 'Save appointment'}</Button></div>
             </form>
           </section>
         </div>
@@ -491,6 +569,7 @@ function App() {
     return (
       <Routes>
         <Route path="/" element={<LoginPage onLogin={handleLogin} />} />
+        <Route path="/lecture-console" element={<LectureConsolePage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     );
@@ -499,6 +578,7 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<LoginPage onLogin={handleLogin} />} />
+      <Route path="/lecture-console" element={<LectureConsolePage />} />
       <Route path="/appointments" element={<AppointmentsPage />} />
       <Route path="/appointments/:id" element={<AppointmentDetailPage />} />
       <Route path="*" element={<Navigate to="/appointments" replace />} />
