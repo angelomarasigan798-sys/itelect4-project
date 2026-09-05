@@ -50,10 +50,6 @@ function LoginPage({ onLogin }: { onLogin: (username: string, password: string) 
         <h1>Login</h1>
         <p className="login-subtitle">Sign in to access appointments.</p>
 
-        <Link className="console-link" to="/lecture-console">
-          Open Session 8 lecture console
-        </Link>
-
         <form className="login-form" onSubmit={handleSubmit}>
           <div>
             <Label htmlFor="username">Username</Label>
@@ -86,29 +82,6 @@ function LoginPage({ onLogin }: { onLogin: (username: string, password: string) 
           </Button>
         </form>
       </div>
-    </div>
-  );
-}
-
-function LectureConsolePage() {
-  return (
-    <div className="lecture-console-shell">
-      <header className="topbar">
-        <Link className="brand" to="/appointments">
-          <span className="brand-mark">+</span>
-          <span>Careline</span>
-        </Link>
-        <div className="topbar-actions">
-          <Link className="console-link topbar-console-link" to="/appointments">
-            Back to appointments
-          </Link>
-        </div>
-      </header>
-      <iframe
-        title="ITELECT4 Session 8 Console"
-        src="/lecture-console.html"
-        className="lecture-console-iframe"
-      />
     </div>
   );
 }
@@ -218,9 +191,6 @@ function AppointmentsPage() {
           <span>Careline</span>
         </Link>
         <div className="topbar-actions">
-          <Link className="console-link topbar-console-link" to="/lecture-console">
-            Session 8 Console
-          </Link>
           <button className="theme-button" type="button" onClick={toggleDarkMode}>
             <span className="theme-icon" aria-hidden="true">{darkMode ? '○' : '◐'}</span>
             {darkMode ? 'Light mode' : 'Dark mode'}
@@ -569,7 +539,6 @@ function App() {
     return (
       <Routes>
         <Route path="/" element={<LoginPage onLogin={handleLogin} />} />
-        <Route path="/lecture-console" element={<LectureConsolePage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     );
@@ -578,7 +547,6 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<LoginPage onLogin={handleLogin} />} />
-      <Route path="/lecture-console" element={<LectureConsolePage />} />
       <Route path="/appointments" element={<AppointmentsPage />} />
       <Route path="/appointments/:id" element={<AppointmentDetailPage />} />
       <Route path="*" element={<Navigate to="/appointments" replace />} />
