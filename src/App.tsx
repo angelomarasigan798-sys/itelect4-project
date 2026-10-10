@@ -6,7 +6,7 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Link, Navigate, Route, Routes, useNavigate, useParams } from 'react-router-dom';
+import { Link, Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,46 +20,62 @@ import {
 } from './api/client';
 import { appointmentSchema, type AppointmentFormValues } from './schemas/appointmentSchema';
 import { useUIStore } from './store/uiStore';
+import { useAuthStore } from './store/authStore';
+import { loginUser, registerUser } from './api/client';
 import './App.css';
 
-const VALID_USERNAME = '1234';
-const VALID_PASSWORD = 'admin';
-
-function LoginPage({ onLogin }: { onLogin: (username: string, password: string) => boolean }) {
+function LoginPage() {
   const navigate = useNavigate();
-  const [username, setUsername] = useState('');
+  const isRegistering = useLocation().pathname === '/register';
+  const login = useAuthStore((state) => state.login);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setError('');
+    setIsSubmitting(true);
 
-    if (onLogin(username.trim(), password.trim())) {
+    try {
+      if (isRegistering) {
+        await registerUser({ name: name.trim(), email: email.trim(), password });
+      }
+      const reply = await loginUser({ email: email.trim(), password });
+      login(reply.token, reply.user.name);
       setError('');
       navigate('/appointments', { replace: true });
-      return;
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : 'Unable to sign in.');
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setError('Invalid username or password. Please try again.');
   };
 
   return (
     <div className="login-page">
       <div className="login-card">
         <p className="eyebrow">Careline clinic</p>
-        <h1>Login</h1>
-        <p className="login-subtitle">Sign in to access appointments.</p>
+        <h1>{isRegistering ? 'Create account' : 'Login'}</h1>
+        <p className="login-subtitle">{isRegistering ? 'Register to manage appointments.' : 'Sign in to access appointments.'}</p>
 
         <form className="login-form" onSubmit={handleSubmit}>
+          {isRegistering && <div>
+            <Label htmlFor="name">Name</Label>
+            <Input id="name" type="text" value={name} onChange={(event) => setName(event.target.value)} required autoComplete="name" />
+          </div>}
           <div>
-            <Label htmlFor="username">Username</Label>
+            <Label htmlFor="email">Email</Label>
             <Input
-              id="username"
-              type="text"
-              value={username}
-              onChange={(event) => setUsername(event.target.value)}
-              placeholder="Enter your username"
-              autoComplete="username"
+              id="email"
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="you@example.com"
+              autoComplete="email"
+              required
             />
           </div>
 
@@ -70,17 +86,22 @@ function LoginPage({ onLogin }: { onLogin: (username: string, password: string) 
               type="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              placeholder="Enter your password"
-              autoComplete="current-password"
+              minLength={8}
+              required
+              autoComplete={isRegistering ? 'new-password' : 'current-password'}
             />
           </div>
 
           {error && <p className="login-error">{error}</p>}
 
-          <Button className="primary-button login-button" type="submit">
-            Sign in
+          <Button className="primary-button login-button" type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Please wait...' : isRegistering ? 'Create account' : 'Sign in'}
           </Button>
         </form>
+        <p className="login-subtitle">
+          {isRegistering ? 'Already registered? ' : 'New to Careline? '}
+          <Link to={isRegistering ? '/' : '/register'}>{isRegistering ? 'Sign in' : 'Create an account'}</Link>
+        </p>
       </div>
     </div>
   );
@@ -180,7 +201,7 @@ function AppointmentsPage() {
   }
 
   if (error) {
-    return <div>Error loading appointments</div>;
+    return <div className="form-error">{error.message}</div>;
   }
 
   return (
@@ -199,8 +220,8 @@ function AppointmentsPage() {
             className="logout-button"
             type="button"
             onClick={() => {
-              localStorage.removeItem('careline-auth');
-              window.location.href = '/';
+              useAuthStore.getState().logout();
+              window.location.assign('/');
             }}
           >
             Log out
@@ -514,31 +535,13 @@ function AppointmentDetailPage() {
 }
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    if (typeof window === 'undefined') {
-      return false;
-    }
+  const token = useAuthStore((state) => state.token);
 
-    return localStorage.getItem('careline-auth') === 'true';
-  });
-
-  useEffect(() => {
-    localStorage.setItem('careline-auth', String(isAuthenticated));
-  }, [isAuthenticated]);
-
-  const handleLogin = (username: string, password: string) => {
-    if (username === VALID_USERNAME && password === VALID_PASSWORD) {
-      setIsAuthenticated(true);
-      return true;
-    }
-
-    return false;
-  };
-
-  if (!isAuthenticated) {
+  if (!token) {
     return (
       <Routes>
-        <Route path="/" element={<LoginPage onLogin={handleLogin} />} />
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/register" element={<LoginPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     );
@@ -546,7 +549,8 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/" element={<LoginPage onLogin={handleLogin} />} />
+      <Route path="/" element={<Navigate to="/appointments" replace />} />
+      <Route path="/register" element={<Navigate to="/appointments" replace />} />
       <Route path="/appointments" element={<AppointmentsPage />} />
       <Route path="/appointments/:id" element={<AppointmentDetailPage />} />
       <Route path="*" element={<Navigate to="/appointments" replace />} />
