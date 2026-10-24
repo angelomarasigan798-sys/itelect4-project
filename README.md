@@ -1,5 +1,19 @@
 # React + TypeScript + Vite
 
+## AI Review
+
+The authenticated AI Review page sends project descriptions to the backend's
+`POST /api/ai` route. The browser never receives or uses the Gemini API key.
+
+For local development, copy `.env.example` to `.env.local` and set
+`VITE_API_URL` to the backend URL (by default, `http://localhost:4000`). Start
+the backend and frontend in separate terminals with `npm run dev`.
+
+The backend requires `GEMINI_API_KEY` in its private `.env` file. Never put
+that key in a `VITE_` variable, commit it, or include it in this repository.
+The AI form accepts descriptions from 20 through 2,000 characters after
+trimming whitespace.
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:

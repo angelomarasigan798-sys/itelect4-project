@@ -60,3 +60,10 @@ export interface AppointmentApi {
 }
 
 export type CreateAppointment = Omit<AppointmentApi, "id">;
+
+export interface AiReview {
+    summary: string;
+    strengths: string[];
+    improvements: string[];
+    readiness: "ready" | "almost" | "not-yet";
+}

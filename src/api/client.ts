@@ -1,4 +1,5 @@
 import { useAuthStore } from "../store/authStore";
+import type { AiReview } from "../types";
 
 const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "");
 
@@ -17,6 +18,13 @@ export interface AppointmentApi {
 }
 
 export type CreateAppointment = Omit<AppointmentApi, "id">;
+
+export function askAi(input: { prompt: string }): Promise<AiReview> {
+  return request("/api/ai", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
 
 interface ApiUser {
   id: string;

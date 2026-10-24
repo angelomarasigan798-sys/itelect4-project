@@ -22,6 +22,7 @@ import { appointmentSchema, type AppointmentFormValues } from './schemas/appoint
 import { useUIStore } from './store/uiStore';
 import { useAuthStore } from './store/authStore';
 import { loginUser, registerUser } from './api/client';
+import ReviewPage from './pages/ReviewPage';
 import './App.css';
 
 function LoginPage() {
@@ -212,6 +213,7 @@ function AppointmentsPage() {
           <span>Careline</span>
         </Link>
         <div className="topbar-actions">
+          <Link className="edit-button" to="/review">AI Review</Link>
           <button className="theme-button" type="button" onClick={toggleDarkMode}>
             <span className="theme-icon" aria-hidden="true">{darkMode ? '○' : '◐'}</span>
             {darkMode ? 'Light mode' : 'Dark mode'}
@@ -541,8 +543,10 @@ function App() {
     return (
       <Routes>
         <Route path="/" element={<LoginPage />} />
+        <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<LoginPage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="/review" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     );
   }
@@ -553,6 +557,7 @@ function App() {
       <Route path="/register" element={<Navigate to="/appointments" replace />} />
       <Route path="/appointments" element={<AppointmentsPage />} />
       <Route path="/appointments/:id" element={<AppointmentDetailPage />} />
+      <Route path="/review" element={<ReviewPage />} />
       <Route path="*" element={<Navigate to="/appointments" replace />} />
     </Routes>
   );
