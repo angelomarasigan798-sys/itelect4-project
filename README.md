@@ -1,89 +1,58 @@
-# React + TypeScript + Vite
+# ITELECT4 Project
 
-## AI Review
+[![CI](https://github.com/angelomarasigan798-sys/itelect4-project/actions/workflows/ci.yml/badge.svg)](https://github.com/angelomarasigan798-sys/itelect4-project/actions/workflows/ci.yml)
 
-The authenticated AI Review page sends project descriptions to the backend's
-`POST /api/ai` route. The browser never receives or uses the Gemini API key.
+A React and TypeScript appointment-management app with authentication,
+appointment scheduling, and an authenticated AI Review page.
 
-For local development, copy `.env.example` to `.env.local` and set
-`VITE_API_URL` to the backend URL (by default, `http://localhost:4000`). Start
-the backend and frontend in separate terminals with `npm run dev`.
+- **Live frontend:** https://itelect4-project.vercel.app
+- **Live backend:** https://itelect4-backend-nu.vercel.app
+- **Backend health check:** https://itelect4-backend-nu.vercel.app/api/health
+- **Backend repository:** https://github.com/angelomarasigan798-sys/itelect4-backend
 
-The backend requires `GEMINI_API_KEY` in its private `.env` file. Never put
-that key in a `VITE_` variable, commit it, or include it in this repository.
-The AI form accepts descriptions from 20 through 2,000 characters after
-trimming whitespace.
+## Architecture
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+```mermaid
+flowchart LR
+  browser["Browser"]
+  frontend["itelect4-project<br/>React + Vite on Vercel"]
+  backend["itelect4-backend<br/>Express + TypeScript on Vercel"]
+  database[("MongoDB Atlas")]
+  gemini["Gemini API"]
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+  browser --> frontend
+  frontend -->|"REST API + JWT"| backend
+  backend --> database
+  backend --> gemini
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Run locally
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Use Node.js 24 and npm. In one terminal, start the backend using the setup in
+the [backend README](https://github.com/angelomarasigan798-sys/itelect4-backend#run-locally).
+In this repository:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```powershell
+npm ci
+Copy-Item .env.example .env.local
+npm run dev
 ```
+
+Set `VITE_API_URL` in `.env.local` to the backend origin (for example,
+`http://localhost:4000`). Do not put backend secrets in frontend variables.
+
+## Checks
+
+```powershell
+npm test
+npm run lint
+npm run build
+```
+
+GitHub Actions runs lint, tests, and the production build on every push.
+
+## AI-use disclosure
+
+AI assistance was used to help implement and verify the tests, CI workflows,
+and this documentation. The repository owner should review and be prepared to
+explain every change before submission.

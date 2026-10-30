@@ -55,4 +55,6 @@ function Button({
   )
 }
 
+// Consumers can reuse the same variants without importing the component.
+// eslint-disable-next-line react-refresh/only-export-components
 export { Button, buttonVariants }

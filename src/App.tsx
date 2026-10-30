@@ -4,7 +4,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -464,18 +464,6 @@ function AppointmentDetailPage() {
     },
   });
 
-  useEffect(() => {
-    if (appointmentQuery.data) {
-      setForm({
-        patientName: appointmentQuery.data.patientName,
-        appointmentDate: appointmentQuery.data.appointmentDate,
-        appointmentTime: appointmentQuery.data.appointmentTime || '09:00',
-        appointmentType: appointmentQuery.data.appointmentType || 'General consultation',
-        notes: appointmentQuery.data.notes || '',
-      });
-    }
-  }, [appointmentQuery.data]);
-
   if (appointmentQuery.isLoading) {
     return <div>Loading appointment...</div>;
   }
@@ -512,7 +500,22 @@ function AppointmentDetailPage() {
           <div className="detail-field"><span>Notes</span><strong>{appointmentQuery.data.notes || 'No notes were provided.'}</strong></div>
 
           <div className="detail-actions">
-            <button className="edit-button" type="button" onClick={() => setIsEditing((current) => !current)}>
+            <button
+              className="edit-button"
+              type="button"
+              onClick={() => {
+                if (!isEditing) {
+                  setForm({
+                    patientName: appointmentQuery.data.patientName,
+                    appointmentDate: appointmentQuery.data.appointmentDate,
+                    appointmentTime: appointmentQuery.data.appointmentTime || '09:00',
+                    appointmentType: appointmentQuery.data.appointmentType || 'General consultation',
+                    notes: appointmentQuery.data.notes || '',
+                  });
+                }
+                setIsEditing((current) => !current);
+              }}
+            >
               {isEditing ? 'Cancel edit' : 'Edit patient'}
             </button>
           </div>
